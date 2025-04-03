@@ -49,6 +49,3 @@ def columnLineage(sql, this_notebook_name, this_workspace_id, this_workspace_nam
                     all_cols[sink_col] = {"source_db": source_db, "source_tbl": source_tbl, "source_col": source_col, "sink_db": sink_db, "sink_tbl": sink_tbl, "sink_col": sink_col, "notebook_name": this_notebook_name, "workspace_name": this_workspace_name, "workspace_id": this_workspace_id}
 
     return all_cols
-
-out = columnLineage(sql, this_notebook_name, this_workspace_id, this_workspace_name)
-print(out)
