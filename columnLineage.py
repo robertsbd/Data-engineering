@@ -14,36 +14,32 @@ this_workspace_name = notebookutils.runtime.context.get("currentWorkspaceName")
 
 def columnLineage(sql, this_notebook_name, this_workspace_id, this_workspace_name): 
 
-    # sql = the sql string to analyze, can be composed of multiple sql statements
-    # this_notebook_name = the current notepad
-    # this_workspace_id = the id of the workspace
-    # this_workspace_name = the workspace name
-  
-    ## parse the sql
-    parsed_qrys = parse(sql_string, read = "spark")
+    # iterate through the queries only analysing those that have a SELECT in them
 
-    # iterate through the SQL statements only analysing those that contain a SELECT and a CREATE
+    ## parse it
+    parsed_qrys = parse(sql, read = "spark")
+
     for ast in parsed_qrys:
-        if ast.find(exp.Select) != None:
+        if ast.find(exp.Select) != None and ast.find(exp.Create) != None:
+
+            # get the SQL into a standard state
             ast = qualify(ast)
             cleaned_sql = optimize(ast).sql(pretty=True)
-
             ast = parse_one(cleaned_sql, read = "spark")
 
-            ## Get the create to get the name of the target table
+            ## Get the create for the name of the target table and db
             sink_tbl = ast.find(exp.Create).find(exp.Table).name
-
-            ## Get the name of the target database
             sink_db = ast.find(exp.Create).find(exp.Table).db
 
             all_cols = {}
 
             source_db = ""
 
+            # analyse the select statement
             for select in ast.find_all(exp.Select):
                 for projection in select.expressions:
                     sink_col = projection.alias_or_name
-                    lin = lineage(col_name, cleaned_sql, dialect="spark", trim_selects=True)
+                    lin = lineage(sink_col, cleaned_sql, dialect="spark", trim_selects=True)
                     source_tbl = lin.expression.this.this.this
                     source_col = lin.name
 
