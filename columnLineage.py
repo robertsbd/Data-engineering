@@ -1,8 +1,6 @@
 %pip install sqlglot
 
-import string
 from sqlglot import parse_one, parse, exp
-from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 from sqlglot.lineage import lineage
 from sqlglot.optimizer.qualify import qualify
 from sqlglot.optimizer import optimize
